@@ -1,1 +1,3 @@
 streamlit
+nbconvert[webpdf]
+nbformat
