@@ -65,6 +65,7 @@ if uploaded_file is not None:
                 if ('tags' in cell.metadata and qstr in cell.metadata.tags) or checksource:
                     if checksource:
                         cell.source = '\n'.join(cell.source.splitlines()[1:])
+                    cell.outputs = [c for c in cell.outputs if not ('name' in c and c.name == 'stderr')]
                     cells.append(cell)
                     
             cells.append(nbformat.v4.new_markdown_cell(source=pagebreak))
