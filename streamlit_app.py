@@ -45,6 +45,31 @@ Make sure that all figures are fully visible. See [this StackOverflow post](http
 
 '''
 
+
+st.title('CS152 Notebook Converter')
+st.markdown(instructions)
+uploaded_file = st.file_uploader("Choose an ipynb file to convert to PDF for submission")
+if uploaded_file is not None:
+    # To read file as bytes:
+    with st.spinner('Converting...'):
+        nb = nbformat.read(uploaded_file, 4)
+        cells = [nbformat.v4.new_markdown_cell(source=hidestderr)]
+
+        for cell in nb.cells:
+            if 'outputs' in cell:
+                cell.outputs = [c for c in cell.outputs if not ('name' in c and c.name == 'stderr')]
+            cells.append(cell)
+                    
+
+        output = nbformat.v4.new_notebook()
+        output.cells = cells
+        (pdf, _) = WebPDFExporter(allow_chromium_download=True, embed_images=True).from_notebook_node(output)
+        st.download_button('Download PDF', pdf, file_name='submission.pdf') 
+
+st.markdown(troubleshooting)
+
+# OLD VERSION
+'''
 st.title('CS152 Notebook Converter')
 st.markdown(instructions)
 uploaded_file = st.file_uploader("Choose an ipynb file to convert to PDF for submission")
@@ -78,3 +103,4 @@ if uploaded_file is not None:
         st.download_button('Download PDF', pdf, file_name='submission.pdf') 
 
 st.markdown(troubleshooting)
+'''
