@@ -45,7 +45,6 @@ Make sure that all figures are fully visible. See [this StackOverflow post](http
 
 '''
 
-
 st.title('CS152 Notebook Converter')
 st.markdown(instructions)
 uploaded_file = st.file_uploader("Choose an ipynb file to convert to PDF for submission")
@@ -54,12 +53,24 @@ if uploaded_file is not None:
     with st.spinner('Converting...'):
         nb = nbformat.read(uploaded_file, 4)
         cells = [nbformat.v4.new_markdown_cell(source=hidestderr)]
+        for question in range(20):
+            qstr = f'Q{question}'
+            if question > 0:
+                cells.append(nbformat.v4.new_markdown_cell(source='# ' + qstr))
+            else:
+                cells.append(nbformat.v4.new_markdown_cell(source='CS152 Submission'))
 
-        for cell in nb.cells:
-            if 'outputs' in cell:
-                cell.outputs = [c for c in cell.outputs if not ('name' in c and c.name == 'stderr')]
-            cells.append(cell)
+            for cell in nb.cells:
+                checksource = cell.source.strip().replace(' ', '').find('#!' + qstr) == 0
+                if ('tags' in cell.metadata and qstr in cell.metadata.tags) or checksource:
+                    if checksource:
+                        cell.source = '\n'.join(cell.source.splitlines()[1:])
                     
+                    if 'outputs' in cell:
+                        cell.outputs = [c for c in cell.outputs if not ('name' in c and c.name == 'stderr')]
+                    cells.append(cell)
+                    
+            cells.append(nbformat.v4.new_markdown_cell(source=pagebreak))
 
         output = nbformat.v4.new_notebook()
         output.cells = cells
@@ -67,4 +78,3 @@ if uploaded_file is not None:
         st.download_button('Download PDF', pdf, file_name='submission.pdf') 
 
 st.markdown(troubleshooting)
-
